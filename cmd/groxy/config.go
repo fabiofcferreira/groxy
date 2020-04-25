@@ -7,7 +7,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/fabiofcferreira/phstoreapi/terminal"
+	"github.com/fabiofcferreira/groxy/terminal"
 	"github.com/fatih/color"
 )
 
