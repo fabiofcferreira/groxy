@@ -1,21 +1,26 @@
 package http
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
+
+	"github.com/fatih/color"
 
 	"github.com/fabiofcferreira/groxy"
 )
 
 // Serve spawns an http server that acts as a proxy between frotnend
 // and the airtable api
-func Serve(c *groxy.Config) {
-	// r := mux.NewRouter()
+func Serve(cfg *groxy.Config) {
+	http.Handle("/", Wrap(Proxy, cfg))
 
-	// r.HandleFunc("/proxy", Wrap(Proxy, c)).Methods("GET", "POST", "OPTIONS")
-	http.Handle("/", Wrap(Proxy, c))
-	if err := http.ListenAndServe(":"+strconv.Itoa(c.Port), nil); err != nil {
+	// Spawn http server
+	fmt.Println()
+	color.HiGreen("Starting HTTP server...")
+	if err := http.ListenAndServe(cfg.Host+":"+strconv.Itoa(cfg.Port), nil); err != nil {
+		color.HiRed(err.Error())
 		log.Fatal(err)
 	}
 }

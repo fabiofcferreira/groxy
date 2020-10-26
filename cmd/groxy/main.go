@@ -1,24 +1,16 @@
 package main
 
 import (
-	"flag"
 	"os"
 	"runtime"
 
+	"github.com/fatih/color"
 	"github.com/shiena/ansicolor"
 	"github.com/sirupsen/logrus"
 
 	"github.com/fabiofcferreira/groxy"
 	h "github.com/fabiofcferreira/groxy/http"
 )
-
-var cfgPath string
-
-func init() {
-	flag.StringVar(&cfgPath, "config", "config.json", "Configuration file")
-
-	flag.Parse()
-}
 
 func main() {
 	// Execute with all of the CPUs available
@@ -32,14 +24,14 @@ func main() {
 	log.SetOutput(ansicolor.NewAnsiColorWriter(os.Stdout))
 	log.SetLevel(logrus.InfoLevel)
 
-	// Load config
-	c, err := loadConfig(cfgPath)
+	c, err := loadConfig()
 	if err != nil {
-		log.Error("Could not read the configuration file.")
+		color.HiRed("Couldn't load configuration.")
+
+		log.Fatal(err)
 	}
 
-	// Log configuration values
-	c.log()
+	c.Log()
 
 	cfg := &groxy.Config{
 		Development: c.Development,
@@ -47,8 +39,8 @@ func main() {
 		AppID:  c.AppID,
 		APIKey: c.APIKey,
 
-		PublicHost: c.PublicHost,
 		Host:       c.Host,
+		PublicHost: c.PublicHost,
 		Port:       c.Port,
 	}
 

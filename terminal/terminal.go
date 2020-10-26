@@ -1,21 +1,20 @@
 package terminal
 
 import (
-	"log"
-
+	"github.com/fatih/color"
 	terminal "github.com/wayneashleyberry/terminal-dimensions"
 )
 
-//TerminalSize returns the terminal characters per line limit
-func TerminalSize() int {
-	// get terminal size
-	var width int = 120
+// LineSize returns the terminal characters per line limit
+func LineSize() int {
+	var width int = 60
 
 	x, err := terminal.Width()
 	if err != nil {
-		log.Println("Couldn't get the terminal width")
+		color.HiYellow("Couldn't get the terminal width")
+	} else {
+		width = int(x)
 	}
-	width = int(x)
 
 	return width
 }

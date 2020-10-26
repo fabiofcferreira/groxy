@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/fabiofcferreira/groxy"
 	"github.com/fatih/color"
+
+	"github.com/fabiofcferreira/groxy"
 )
 
 // GroxyHandler is a type definition for a function

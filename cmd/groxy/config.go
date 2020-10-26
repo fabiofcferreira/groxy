@@ -1,52 +1,30 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"log"
-	"os"
 	"strconv"
 
 	"github.com/fabiofcferreira/groxy/terminal"
 	"github.com/fatih/color"
+	"github.com/spf13/viper"
 )
 
 type config struct {
-	Development bool
+	Development bool `mapstructure:"GROXY_Development"`
 
 	// AirTable configuration
-	AppID  string
-	APIKey string
+	AppID  string `mapstructure:"GROXY_App_ID"`
+	APIKey string `mapstructure:"GROXY_API_Key"`
 
-	PublicHost string
-	Host       string
-	Port       int
+	Host       string `mapstructure:"GROXY_Host"`
+	PublicHost string `mapstructure:"GROXY_PublicHost"`
+	Port       int    `mapstructure:"GROXY_Port"`
 }
 
-func loadConfig(path string) (*config, error) {
-	cfg := &config{}
+func (c *config) Log() {
+	terminalWidth := terminal.LineSize()
 
-	cfgPath := "config.json"
-	if len(path) > 0 {
-		cfgPath = path
-	}
-
-	f, err := os.Open(cfgPath)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	parser := json.NewDecoder(f)
-	err = parser.Decode(&cfg)
-
-	return cfg, nil
-}
-
-func (c *config) log() {
-	terminalWidth := terminal.TerminalSize()
-
-	color.HiYellow("Configuration file")
-
+	color.HiYellow("Configuration")
 	terminal.LineSeparator("-", color.New(color.FgHiCyan), terminalWidth)
 
 	fmt.Printf("Development mode: ")
@@ -58,5 +36,36 @@ func (c *config) log() {
 	fmt.Printf("Host: ")
 	color.HiRed(strconv.Itoa(c.Port))
 
+	fmt.Printf("App ID: ")
+	color.HiBlue(c.AppID)
+
+	if c.Development {
+		fmt.Printf("API key: ")
+		color.HiBlue(c.APIKey)
+	}
+
 	terminal.LineSeparator("-", color.New(color.FgHiCyan), terminalWidth)
+}
+
+func loadConfig() (*config, error) {
+	var c *config = &config{}
+	var err error
+
+	v := viper.New()
+
+	// Config files
+	v.SetConfigFile(".env")
+	v.SetEnvPrefix("GROXY")
+
+	v.AutomaticEnv()
+
+	if err := v.ReadInConfig(); err != nil {
+		return nil, err
+	}
+
+	if err = v.Unmarshal(&c); err != nil {
+		return nil, err
+	}
+
+	return c, err
 }

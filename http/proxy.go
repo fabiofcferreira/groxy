@@ -3,13 +3,12 @@ package http
 import (
 	"io/ioutil"
 	"net/http"
-	"strings"
 
 	"github.com/fabiofcferreira/groxy"
 )
 
 // Proxy performs a request to the airtable API requested by the
-// frontend and replies with the response, acting just like a VPN
+// frontend and replies with the response, acting just like a proxy
 func Proxy(w http.ResponseWriter, r *http.Request, c *groxy.Config) (int, error) {
 	// For now the proxy only works with data retrievals
 	if r.Method != "GET" {
@@ -19,14 +18,15 @@ func Proxy(w http.ResponseWriter, r *http.Request, c *groxy.Config) (int, error)
 	// HTTP client
 	client := &http.Client{}
 
-	reqURL := "https://api.airtable.com/v0/" + c.AppID + strings.Replace(r.URL.String(), "/proxy", "", 1)
+	// Create AirTable API URL
+	url := "https://api.airtable.com/v0/" + c.AppID + r.URL.String()
 
-	// Setting up request
-	req, err := http.NewRequest("GET", reqURL, nil)
+	// Create request and add required headers
+	req, err := http.NewRequest("GET", url, nil)
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Authorization", "Bearer "+c.APIKey)
 
-	// Perform the request itself
+	// Perform request
 	resp, err := client.Do(req)
 	if err != nil {
 		c.Logger.Errorf(err.Error())
