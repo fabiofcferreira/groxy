@@ -1,7 +1,6 @@
 package terminal
 
 import (
-	"github.com/fatih/color"
 	terminal "github.com/wayneashleyberry/terminal-dimensions"
 )
 
@@ -10,9 +9,7 @@ func LineSize() int {
 	var width int = 60
 
 	x, err := terminal.Width()
-	if err != nil {
-		color.HiYellow("Couldn't get the terminal width")
-	} else {
+	if err == nil {
 		width = int(x)
 	}
 

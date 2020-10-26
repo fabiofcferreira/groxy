@@ -9,9 +9,8 @@ type Config struct {
 	AppID  string
 	APIKey string
 
-	PublicHost string
-	Host       string
-	Port       int
+	Host string
+	Port int
 
 	Logger *logrus.Logger
 }

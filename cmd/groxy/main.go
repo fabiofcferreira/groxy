@@ -26,9 +26,9 @@ func main() {
 
 	c, err := loadConfig()
 	if err != nil {
-		color.HiRed("Couldn't load configuration.")
+		color.HiRed("\nClosing application (Reason: %s)\n", err)
 
-		log.Fatal(err)
+		os.Exit(1)
 	}
 
 	c.Log()
@@ -39,9 +39,8 @@ func main() {
 		AppID:  c.AppID,
 		APIKey: c.APIKey,
 
-		Host:       c.Host,
-		PublicHost: c.PublicHost,
-		Port:       c.Port,
+		Host: c.Host,
+		Port: c.Port,
 	}
 
 	h.Serve(cfg)

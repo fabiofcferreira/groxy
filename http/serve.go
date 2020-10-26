@@ -1,7 +1,6 @@
 package http
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -17,7 +16,6 @@ func Serve(cfg *groxy.Config) {
 	http.Handle("/", Wrap(Proxy, cfg))
 
 	// Spawn http server
-	fmt.Println()
 	color.HiGreen("Starting HTTP server...")
 	if err := http.ListenAndServe(cfg.Host+":"+strconv.Itoa(cfg.Port), nil); err != nil {
 		color.HiRed(err.Error())
