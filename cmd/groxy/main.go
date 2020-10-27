@@ -13,6 +13,8 @@ import (
 )
 
 func main() {
+	color.HiCyan("Starting application...")
+
 	// Execute with all of the CPUs available
 	runtime.GOMAXPROCS(runtime.NumCPU())
 

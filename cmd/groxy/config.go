@@ -78,8 +78,6 @@ func loadFileConfig() (*config, error) {
 }
 
 func loadConfig() (*config, error) {
-	color.HiCyan("Starting application...")
-
 	v := viper.New()
 	v.SetEnvPrefix("GROXY")
 	v.AutomaticEnv()
