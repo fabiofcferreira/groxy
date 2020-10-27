@@ -10,14 +10,14 @@ import (
 )
 
 type config struct {
-	Development bool `mapstructure:"GROXY_Development"`
+	Development bool `mapstructure:"GROXY_DEVELOPMENT"`
 
 	// AirTable configuration
 	AppID  string `mapstructure:"GROXY_APP_ID"`
-	APIKey string `mapstructure:"GROXY_API_Key"`
+	APIKey string `mapstructure:"GROXY_API_KEY"`
 
-	Host string `mapstructure:"GROXY_Host"`
-	Port int    `mapstructure:"GROXY_Port"`
+	Host string `mapstructure:"GROXY_HOST"`
+	Port int    `mapstructure:"GROXY_PORT"`
 }
 
 func (c *config) Log() {
@@ -50,7 +50,7 @@ func (c *config) Log() {
 }
 
 func loadFileConfig() (*config, error) {
-	color.HiYellow("Loading configuration from .env file instead of system environment variables due to its validity...")
+	color.HiYellow("\nLoading configuration from .env file instead of system environment variables due to its validity...")
 
 	var c *config = &config{}
 
@@ -85,12 +85,13 @@ func loadConfig() (*config, error) {
 	v.AutomaticEnv()
 
 	// Bind variables
-	v.BindEnv("Development")
-	v.BindEnv("Host")
-	v.BindEnv("Port")
+	v.BindEnv("DEVELOPMENT")
+
+	v.BindEnv("HOST")
+	v.BindEnv("PORT")
 
 	v.BindEnv("APP_ID")
-	v.BindEnv("API_Key")
+	v.BindEnv("API_KEY")
 
 	valid := true
 	for _, key := range v.AllKeys() {
@@ -103,10 +104,10 @@ func loadConfig() (*config, error) {
 		Development: v.GetBool("Development"),
 
 		AppID:  v.GetString("APP_ID"),
-		APIKey: v.GetString("API_Key"),
+		APIKey: v.GetString("API_KEY"),
 
-		Host: v.GetString("Host"),
-		Port: v.GetInt("Port"),
+		Host: v.GetString("HOST"),
+		Port: v.GetInt("PORT"),
 	}
 
 	// If the system environment variables can form a valid config file,
@@ -115,5 +116,25 @@ func loadConfig() (*config, error) {
 		return c, nil
 	}
 
-	return loadFileConfig()
+	c, err := loadFileConfig()
+	if err != nil {
+		return nil, err
+	}
+
+	if c.Development {
+		terminalWidth := terminal.LineSize()
+
+		// Display environment variables when in development
+		fmt.Printf("\n")
+		terminal.LineSeparator("-", color.New(color.FgHiCyan), terminalWidth)
+		color.HiYellow("System environment variables\n")
+		terminal.LineSeparator("-", color.New(color.FgHiCyan), terminalWidth)
+
+		for _, key := range v.AllKeys() {
+			fmt.Printf("%s: %v\n", key, v.Get(key))
+		}
+		terminal.LineSeparator("-", color.New(color.FgHiCyan), terminalWidth)
+	}
+
+	return c, nil
 }
