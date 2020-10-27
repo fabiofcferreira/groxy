@@ -1,6 +1,8 @@
 package http
 
 import (
+	"bytes"
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
 
@@ -11,30 +13,48 @@ import (
 // frontend and replies with the response, acting just like a proxy
 func Proxy(w http.ResponseWriter, r *http.Request, c *groxy.Config) (int, error) {
 	// For now the proxy only works with data retrievals
-	if r.Method != "GET" {
+	if r.Method != "GET" && r.Method != "POST" {
 		return http.StatusMethodNotAllowed, nil
 	}
 
 	// HTTP client
+	var resp *http.Response
+	var err error
 	client := &http.Client{}
 
 	// Create AirTable API URL
 	url := "https://api.airtable.com/v0/" + c.AppID + r.URL.String()
 
-	// Create request and add required headers
-	req, err := http.NewRequest("GET", url, nil)
-	req.Header.Set("Accept", "application/json")
-	req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	if r.Method == "GET" {
+		// Create request and add required headers
+		req, err := http.NewRequest("GET", url, nil)
+		req.Header.Set("Accept", "application/json")
+		req.Header.Set("Authorization", "Bearer "+c.APIKey)
 
-	// Perform request
-	resp, err := client.Do(req)
-	if err != nil {
-		c.Logger.Errorf(err.Error())
+		// Perform request
+		resp, err = client.Do(req)
+		if err != nil {
+			c.Logger.Errorf(err.Error())
+		}
+		defer resp.Body.Close()
+	} else if r.Method == "POST" {
+		reqBody, err := json.Marshal(r.Body)
+		if err != nil {
+			c.Logger.Errorf(err.Error())
+		}
+
+		resp, err = http.Post(url, "application/json", bytes.NewBuffer(reqBody))
+		if err != nil {
+			c.Logger.Errorf("Error while performing POST request: %s.", err)
+		}
+		defer resp.Body.Close()
 	}
-	defer resp.Body.Close()
 
 	// Read response contents
-	body, _ := ioutil.ReadAll(resp.Body)
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		c.Logger.Errorf("Couldn't read response: %s", err.Error())
+	}
 
 	w.Write(body)
 
