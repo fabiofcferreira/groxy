@@ -1,0 +1,1 @@
+make: go build -o groxy github.com/fabiofcferreira/groxy/cmd/groxy
